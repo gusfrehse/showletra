@@ -1,0 +1,13 @@
+{
+  "name": "showletra",
+  "private": true,
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "trustedDependencies": [
+    "@tailwindcss/oxide",
+    "sharp",
+    "unrs-resolver"
+  ]
+}

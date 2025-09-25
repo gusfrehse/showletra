@@ -1,0 +1,14 @@
+{
+  "name": "@showletra/utils",
+  "module": "index.ts",
+  "type": "module",
+  "exports": {
+      "bun": "index.ts"
+  },
+  "devDependencies": {
+    "@types/bun": "latest"
+  },
+  "peerDependencies": {
+    "typescript": "^5"
+  }
+}
