@@ -1,7 +1,4 @@
 import type { GameInfo } from '@showletra/utils';
-import { TEST_OBJ } from '@showletra/utils';
-
-console.log(TEST_OBJ.test);
 
 console.log("Hello world!");
 
@@ -45,7 +42,16 @@ interface WSMessage {
 async function fetchDailyPuzzle() : Promise<Puzzle> {
     const res = await fetch("https://g1.globo.com/jogos/static/soletra.json");
     const data = await res.json();
-    return data as Puzzle;
+    const puzzle = data as Puzzle;
+
+    puzzle.word_list = puzzle
+        .word_list
+        .sort((a, b) =>
+              a.word.length - b.word.length
+              || a.word.localeCompare(b.word, "pt-BR"));
+    console.log(puzzle.word_list);
+
+    return puzzle;
 }
 
 function serializePuzzle(puzzle: Puzzle) : SerializedPuzzle {
