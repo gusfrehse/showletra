@@ -1,6 +1,12 @@
-import type { GameInfo } from '@showletra/utils';
+import type { ServerMessage } from '@showletra/utils';
 
 console.log("Hello world!");
+
+const CORS_HEADERS = {
+    'Access-Control-Allow-Origin': '*',
+    'Access-Control-Allow-Methods': 'OPTIONS, POST',
+    'Access-Control-Allow-Headers': 'Content-Type',
+};
 
 interface Puzzle {
     id: number,
@@ -30,13 +36,6 @@ interface SerializedPuzzle {
         length: number,
         score: number,
     }[]
-}
-
-interface WSMessage {
-    id: number,
-    word: string,
-    status: "ok" | "failed",
-    user: string
 }
 
 async function fetchDailyPuzzle() : Promise<Puzzle> {
@@ -81,21 +80,33 @@ setInterval(
 const server = Bun.serve<{ room: string, user: string }, {}>({
     development: true,
     routes: {
-        "/jogo": () => Response.json(serializePuzzle(todayPuzzle)),
-        "/join/:room":  (req: Bun.BunRequest<"/join/:room">, server: Bun.Server) => {
-            const user = getUserFromRequest(req);
+        "/game/:room": {
+            GET: () => Response.json(serializePuzzle(todayPuzzle), {
+                status: 200,
+                headers: CORS_HEADERS
+            })
+        },
+        "/join/:room":  {
+            GET: (req: Bun.BunRequest<"/join/:room">, server: Bun.Server) => {
+                const user = getUserFromRequest(req);
 
-            const success = server.upgrade(req, {
-                data: {
-                    room: req.params.room,
-                    user
-                }
-            });
+                const success = server.upgrade(req, {
+                    data: {
+                        room: req.params.room,
+                        user
+                    }
+                });
 
-            if (success)
-                return undefined;
+                if (success)
+                    return undefined;
 
-            return new Response("WebSocket creation error", { status: 400 });
+                return new Response("WebSocket creation error", { status: 400 });
+            }
+        }
+    },
+    fetch(req) {
+        if (req.method === "OPTIONS") {
+            const res = new Response('Departed', { headers: CORS_HEADERS });
         }
     },
     error(error) {
@@ -105,16 +116,16 @@ const server = Bun.serve<{ room: string, user: string }, {}>({
     websocket: {
         async message(ws, msg) {
             if (typeof msg !== "string") {
-                // we ignore if the user sends for some reason binary data.
+                // we ignore if the user sends, for some reason, binary data.
                 console.log(`${ws.data.user}@${ws.data.room}: received binary message, ignoring.`);
                 return;
             }
 
-            console.log(`${ws.data.user}@${ws.data.room}: received word:`, msg);
+            console.log(`${ws.data.user}@${ws.data.room}: received word "${msg}".`);
 
             const word = todayPuzzle.word_list.findIndex(w => w.word === msg);
 
-            const reply: WSMessage = {
+            const reply: ServerMessage = {
                 id: word,
                 word: msg,
                 status: "ok",
