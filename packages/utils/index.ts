@@ -4,22 +4,28 @@ export type Test = {
     opa: String,
 };
 
-export interface GameInfo {
+export type Word =
+    | { found: true, word: string, labels: string[], user: string }
+    | { found: false, length: number, score: number }
+
+export type GameInfo = {
     id: number,
     letters: string,
-    published: boolean,
     date: string,
     total_score: number,
-    word_count: number,
-    pangram_count: number,
-    pangram_list: number[],
-    word_list: {
-        id: number,
-        score: number,
-        length: number,
-        pangram: boolean,
-    }[]
+    words: Word[]
 }
+
+/**
+ * A message sent from the server.
+ */
+export interface ServerMessage {
+    id: number,
+    word: string,
+    status: "ok" | "failed",
+    user: string
+};
+
 
 export const TEST_OBJ = { test: 100 };
 
