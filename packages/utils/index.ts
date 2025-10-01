@@ -5,7 +5,7 @@ export type Test = {
 };
 
 export type Word =
-    | { found: true, word: string, labels: string[], user: string }
+    | { found: true, word: string, user: string }
     | { found: false, length: number, score: number }
 
 export type GameInfo = {
@@ -15,6 +15,16 @@ export type GameInfo = {
     total_score: number,
     words: Word[]
 }
+
+export function normalizeWord(str: string): string {
+    return str
+        .trim()
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '')
+        .toLowerCase();
+}
+
+
 
 /**
  * A message sent from the server.

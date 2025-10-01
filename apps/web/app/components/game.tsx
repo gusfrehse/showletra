@@ -1,44 +1,42 @@
 'use client'
 
 import { useRef, useState, useCallback, useEffect } from "react";
+import { useRouter } from 'next/navigation';
 import Keyboard from "./keyboard";
-import Button from "./button"
-import TextInput from "./textinput"
-import WordList from "./wordlist"
+import Button from "./button";
+import TextInput from "./textinput";
+import WordList from "./wordlist";
+import { Status, StatusContainer } from "./status";
+import { tailwindTextColorFromUsername } from "@/utils/colors";
 
-import { TEST_OBJ } from '@showletra/utils';
+import type { GameInfo, ServerMessage } from '@showletra/utils';
+import { normalizeWord } from '@showletra/utils';
 
-console.log(TEST_OBJ.test);
-
-interface GameProps {
-    info: GameInfo
-};
-
-export type Word =
-    | { found: true, word: string, user: string }
-    | { found: false, length: number, score: number };
-
-export default function Game({ info }: GameProps) {
+export default function Game() {
     const socketRef = useRef<WebSocket | null>(null);
+    const [info, setInfo] = useState<GameInfo | null>(null); 
     const [guess, setGuess] = useState<string>('');
-    const [words, setWords] = useState<Word[]>(
-        info.word_list.map(w => {return { found: false, length: w.length, score: w.score }})
-    );
-    const [error, setError] = useState<{timeout: NodeJS.Timeout, message: string} | null>(null);
+    const router = useRouter();
 
     const addLetter = useCallback((letter: string) => {
         setGuess((old: string) => old + letter)
     }, [setGuess]);
 
-    const showError = useCallback((message: string) => {
-        if (error?.timeout)
-            clearTimeout(error.timeout);
+    useEffect(() => {
+        const room = localStorage.getItem('room') || "main";
+        if (!room) {
+            // TODO: do something if not in any room.
+            router.push('/entrar');
+            return;
+        }
 
-        setError({
-            timeout: setTimeout(() => setError(null), 5000),
-            message
-        });
-    }, [error?.timeout]);
+        fetch(`http://${process.env.NEXT_PUBLIC_SERVER_URL!}/game/${room}`)
+            .then(res => res.json())
+            .then((data: GameInfo) => {
+                setInfo(data)
+            })
+            .catch(err => console.error(err));
+    }, [router]);
 
     useEffect(() => {
         if (!socketRef.current) {
@@ -48,7 +46,9 @@ export default function Game({ info }: GameProps) {
             if (user)
                 params.append('user', user);
 
-            const url = "ws://" + process.env.NEXT_PUBLIC_SERVER_URL! + "/join/main?" + params.toString();
+            const room = localStorage.getItem('room') || 'main';
+
+            const url = `ws://${process.env.NEXT_PUBLIC_SERVER_URL!}/join/${room}?${params.toString()}`;
             console.log(url);
             const socket = new WebSocket(url);
             socketRef.current = socket;
@@ -57,38 +57,45 @@ export default function Game({ info }: GameProps) {
         } 
 
         socketRef.current.onmessage = (event) => {
-            const data = JSON.parse(event.data) as {
-                id: number,
-                word: string,
-                status: "ok" | "failed",
-                user: "string"
-            };
-            
+            const data = JSON.parse(event.data) as ServerMessage;           
             console.log("RECV", data);
-            console.log("found words", words);
 
-            if (data.status === "failed") {
-                showError("nao existe burro");
+            const currentUser = data.user === localStorage.getItem('user');
+
+            if (data.status === "failed" && currentUser) {
+                Status.show("text-red-500","nao existe burro");
                 return;
             }
 
             if (data.status === "ok"
-                && words.find(w => w.found && data.word === w.word)) {
-                showError("demorou demais irmao");
+                && currentUser
+                && info?.words.find(w => w.found && data.word === w.word)) {
+                Status.show("text-red-500", "demorou demais irmao");
                 return;
             }
 
             if (data.status === "ok") {
-                const newWords = [...words];
-                newWords[data.id] = { found: true, word: data.word, user: data.user };
-                console.log(newWords);
+                if (info) {
+                    const newWords = [...info.words];
+                    newWords[data.id] = { found: true, word: data.word, user: data.user };
+                    console.log(newWords);
 
-                setWords(newWords);
+                    setInfo({...info, words: newWords}); 
 
-                return;
+                    const statusColor = tailwindTextColorFromUsername(data.user);
+
+                    if (currentUser) {
+                        Status.show(statusColor, "boa fez alguma coisa");
+                    } else {
+                        Status.show(statusColor, `${data.user} achou '${data.word}'`);
+                    }
+
+                    return;
+                }
             }
+
         }
-    }, [words, showError]);
+    }, [info]);
 
     if (!info) {
         return <div>Hmm carregando??</div>;
@@ -99,35 +106,37 @@ export default function Game({ info }: GameProps) {
 
     const handleGuess = () => {
         console.log("guessing", guess);
+
+        setGuess('');
+
         if (!guess) {
             console.log("empty guess", guess);
-            showError("faltou tentar so ne...");
-            setGuess('');
+            Status.show("text-red-500","faltou tentar so ne...");
+
             return;
         }
 
         if (guess.length <= 3) {
-            console.log("", guess);
-            showError(Math.random() > 0.5 ?
+            Status.show(
+                "text-red-500",
+                Math.random() > 0.5 ?
                       "tem que ter mais de 3 letras. acha que a vida é fácil??"
-                     :"muito pequeno (foi o que ela disse)");
-            setGuess('');
+                     :"muito pequeno (foi o que ela disse)"
+            );
             return;
         }
 
         for (const c of guess) {
             if (!availableLetters.includes(c)) {
                 console.log("non available letter", c);
-                showError("presta atencao nao pode usar " + c + "...");
-                setGuess('');
+                Status.show("text-red-500", "presta atencao nao pode usar " + c + "...");
                 return;
             }
         }
 
         if (!guess.includes(mandatoryLetter)) {
             console.log("no mandatory letter", guess);
-            showError("tem que ter a do meio.....");
-            setGuess('');
+            Status.show("text-red-500","tem que ter a do meio.....");
             return;
         }
 
@@ -135,7 +144,6 @@ export default function Game({ info }: GameProps) {
         if (socketRef.current?.readyState === WebSocket.OPEN) {
             console.log("Sent a guess", guess);
             socketRef.current.send(guess);
-            setGuess('');
         }
     }
 
@@ -152,11 +160,11 @@ export default function Game({ info }: GameProps) {
                     handleGuess();
                 }}
             >
-                <TextInput autoFocus value={guess} onChange={(e) => setGuess(e.target.value)} />
+                <TextInput autoFocus value={guess} onChange={(e) => setGuess(normalizeWord(e.target.value))} />
                 <Button type='submit'>Guess</Button>
             </form>
-            <p className="text-red-500">{error?.message}</p>
-            <WordList words={words} />
+            <StatusContainer />
+            <WordList words={info.words} />
         </div>
     );
 }

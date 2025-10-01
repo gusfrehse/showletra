@@ -1,4 +1,5 @@
-import type { Word } from './game.tsx';
+import type { Word } from '@showletra/utils';
+import { tailwindTextColorFromUsername } from '@/utils/colors';
 
 interface WordListProps {
     words: Word[] 
@@ -6,7 +7,7 @@ interface WordListProps {
 
 const Word = ({word}: {word: Word}) => {
     if (word.found) {
-        return <div className="text-gray-600">
+        return <div className={`${tailwindTextColorFromUsername(word.user)}`}>
             {word.user}: {word.word} 
         </div>;
     }

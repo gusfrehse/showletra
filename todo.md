@@ -8,16 +8,25 @@ questoes:
  - como vou salvar o board no back? (pode ser feito depois nao tem problema)
    - provavelmente do mesmo jeito que to guardando no front, usando o tipo Word e Words do front.
 
-
 todo:
- - [ ] resolver problema de quando erra aparece no outro
- - [ ] reconectar quando desconectar
- - [ ] falar quando acerto
+ - [x] decidir gameinfo e word list e word no front principalmente.
+   - game info o principal, que eu nao modifico. dai o outro eu modifico?
+   - ou ja modifico direto fodase? acho que sim !! NAO pq tem rooms cada room precisa pegar do zero
+   - GameBase -> dados que vem do g1, só com algumas diferenças, só vai mudar quando mudar o dia
+   - GameInfo -> dados que vem do GameBase, no principio escondendo as palavras, vai ser mandado para o front
+ - [x] reconectar quando desconectar
+ - [x] resolver problema de quando erra aparece no outro
+ - [x] falar quando acerto
  - [ ] placar
  - [ ] total de palavras
  - [ ] tirar serializer para uma nova rota que vai retornar as words naquela room do jeito que front quer
  - [ ] deixar bonito
-   - [ ] adicionar uma cor baseada no nome (ou numa hash de nome), acredito que deve ser escolher uma saturacao um brilho e mudar a hue com base nessa hash.
+   - [x] adicionar uma cor baseada no nome (ou numa hash de nome), acredito que deve ser escolher uma saturacao um brilho e mudar a hue com base nessa hash.
+     - [ ] mudar para parar de usar as cores do tailwind, usar
+       - [ ] a) uma paleta
+       - [ ] b) variaveis css pra calcular so uma vez qual cor de acento é para pegar
+   - [ ] piscar o background de um jeito legal com a com de quem acertou
+   - [ ] fazer buttons e textfields
 
  - [ ] EXTRA: categorias novas (so paises, times de futebol, jogadores, comida)
 
