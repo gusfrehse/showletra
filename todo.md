@@ -17,6 +17,9 @@ todo:
  - [x] reconectar quando desconectar
  - [x] resolver problema de quando erra aparece no outro
  - [x] falar quando acerto
+ - [ ] quando jogador A coloca um que ja achou aparece erro para jogador A, mas para outros jogadores aparece que ele achou mesmo. talvez nao transmitir para todos o erro?
+ - [ ] mostrar quantidade de palavras.
+ - [ ] quando alguem tenta um que ja achou os outros recebem que ele achou
  - [ ] placar
  - [ ] total de palavras
  - [ ] tirar serializer para uma nova rota que vai retornar as words naquela room do jeito que front quer

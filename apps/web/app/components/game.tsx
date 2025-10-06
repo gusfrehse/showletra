@@ -147,6 +147,9 @@ export default function Game() {
         }
     }
 
+    const wordsTotal = info.words.length;
+    const wordsFound = info.words.reduce((acc, w) => acc + (w.found ? 1 : 0), 0);
+
     return (
         <div className="flex flex-col w-full">
             <Keyboard
@@ -160,8 +163,11 @@ export default function Game() {
                     handleGuess();
                 }}
             >
-                <TextInput autoFocus value={guess} onChange={(e) => setGuess(normalizeWord(e.target.value))} />
-                <Button type='submit'>Guess</Button>
+                <div className="flex flex-row gap-2">
+                    {wordsFound}/{wordsTotal}
+                    <TextInput autoFocus value={guess} onChange={(e) => setGuess(normalizeWord(e.target.value))} />
+                    <Button type='submit'>Guess</Button>
+                </div>
             </form>
             <StatusContainer />
             <WordList words={info.words} />
