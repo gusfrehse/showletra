@@ -15,6 +15,7 @@ import { normalizeWord } from '@showletra/utils';
 export default function Game() {
     const socketRef = useRef<WebSocket | null>(null);
     const [info, setInfo] = useState<GameInfo | null>(null); 
+    const [textFocus, setTextFocus] = useState<boolean>(false);
     const [guess, setGuess] = useState<string>('');
     const router = useRouter();
 
@@ -48,7 +49,8 @@ export default function Game() {
 
             const room = localStorage.getItem('room') || 'main';
 
-            const url = `ws://${process.env.NEXT_PUBLIC_SERVER_URL!}/join/${room}?${params.toString()}`;
+            const url =
+                `ws://${process.env.NEXT_PUBLIC_SERVER_URL!}/join/${room}?${params.toString()}`;
             console.log(url);
             const socket = new WebSocket(url);
             socketRef.current = socket;
@@ -60,17 +62,15 @@ export default function Game() {
             const data = JSON.parse(event.data) as ServerMessage;           
             console.log("RECV", data);
 
-            const currentUser = data.user === localStorage.getItem('user');
+            const currentUser = data.user === (localStorage.getItem('user'));
 
-            if (data.status === "failed" && currentUser) {
+            if (data.status === "failed-not-found" && currentUser) {
                 Status.show("text-red-500","nao existe burro");
                 return;
             }
 
-            if (data.status === "ok"
-                && currentUser
-                && info?.words.find(w => w.found && data.word === w.word)) {
-                Status.show("text-red-500", "demorou demais irmao");
+            if (data.status === "failed-already-found" && currentUser) {
+                Status.show("text-red-500","demorou demais irmao");
                 return;
             }
 
@@ -155,6 +155,7 @@ export default function Game() {
             <Keyboard
                 availableLetters={availableLetters}
                 mandatoryLetter={mandatoryLetter}
+                horizontal={textFocus}
                 addLetter={addLetter}
             />
             <form
@@ -165,7 +166,13 @@ export default function Game() {
             >
                 <div className="flex flex-row gap-2">
                     {wordsFound}/{wordsTotal}
-                    <TextInput autoFocus value={guess} onChange={(e) => setGuess(normalizeWord(e.target.value))} />
+                    <TextInput
+                        autoFocus
+                        value={guess}
+                        onChange={(e) => setGuess(normalizeWord(e.target.value))}
+                        onFocus={() => setTextFocus(true)}
+                        onBlur={() => setTextFocus(false)}
+                    />
                     <Button type='submit'>Guess</Button>
                 </div>
             </form>

@@ -174,19 +174,25 @@ const server = Bun.serve<{ room: string, user: string }, {}>({
                 user: ws.data.user
             };
 
-            if (wordIndex === -1) {
-                reply.status = "failed";
-            }
+            const gameInfo = getRoom(ws.data.room);
 
-            server.publish(ws.data.room, JSON.stringify(reply));
-            const gameInfo = rooms.get(ws.data.room);
-            if (gameInfo) {
+            if (wordIndex === -1) {
+                // word doesn't exists
+                reply.status = "failed-not-found";
+            } else if (gameInfo.words[wordIndex]?.found) {
+                // was already found
+                reply.status = "failed-already-found";
+            } else {
+                // was not found yet, ok
+                // update gameInfo words
                 gameInfo.words[wordIndex] = {
                     found: true,
                     word,
                     user: ws.data.user
                 }
             }
+
+            server.publish(ws.data.room, JSON.stringify(reply));
         },
         open(ws) {
             ws.subscribe(ws.data.room);

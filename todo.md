@@ -1,11 +1,11 @@
-front/entrar : usuario salva nome do usuario no localStorage para ficar persistente no browser
+ - [x] front/entrar : usuario salva nome do usuario no localStorage para ficar persistente no browser
 
 back/join/:room : browser faz uma conexao websocket, em que manda as tentativas e que recebe os acertos de outras pessoas.
 back/board/:room : browser no inicio e a cada alguns segundos pede tudo que foi feito até agora, caso tenha perdido alguma.
 
 questoes:
- - [X] como identificar o usuario? pelo web socket nao da para passar nada de informacao sem ser pelo proprio websocket...
- - como vou salvar o board no back? (pode ser feito depois nao tem problema)
+ - [x] como identificar o usuario? pelo web socket nao da para passar nada de informacao sem ser pelo proprio websocket...
+ - [x] como vou salvar o board no back? (pode ser feito depois nao tem problema)
    - provavelmente do mesmo jeito que to guardando no front, usando o tipo Word e Words do front.
 
 todo:
@@ -17,19 +17,20 @@ todo:
  - [x] reconectar quando desconectar
  - [x] resolver problema de quando erra aparece no outro
  - [x] falar quando acerto
- - [ ] quando jogador A coloca um que ja achou aparece erro para jogador A, mas para outros jogadores aparece que ele achou mesmo. talvez nao transmitir para todos o erro?
- - [ ] mostrar quantidade de palavras.
- - [ ] quando alguem tenta um que ja achou os outros recebem que ele achou
+ - [x] quando jogador A coloca um que ja achou aparece erro para jogador A, mas para outros jogadores aparece que ele achou mesmo. talvez nao transmitir para todos o erro?
+ - [x] mostrar quantidade de palavras.
+ - [x] quando alguem tenta um que ja achou os outros recebem que ele achou
  - [ ] placar
- - [ ] total de palavras
- - [ ] tirar serializer para uma nova rota que vai retornar as words naquela room do jeito que front quer
- - [ ] deixar bonito
+ - [x] total de palavras
+ - [x] tirar serializer para uma nova rota que vai retornar as words naquela room do jeito que front quer
+ - [~] deixar bonito
    - [x] adicionar uma cor baseada no nome (ou numa hash de nome), acredito que deve ser escolher uma saturacao um brilho e mudar a hue com base nessa hash.
      - [ ] mudar para parar de usar as cores do tailwind, usar
        - [ ] a) uma paleta
        - [ ] b) variaveis css pra calcular so uma vez qual cor de acento é para pegar
    - [ ] piscar o background de um jeito legal com a com de quem acertou
    - [ ] fazer buttons e textfields
+   - [x] fazer bolinhas de letras ficar na horizontal quando focar no text field (teclado aparecer no celular).
 
  - [ ] EXTRA: categorias novas (so paises, times de futebol, jogadores, comida)
 
