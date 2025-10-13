@@ -6,6 +6,7 @@ import Keyboard from "./keyboard";
 import Button from "./button";
 import TextInput from "./textinput";
 import WordList from "./wordlist";
+import Score from "./score";
 import { Status, StatusContainer } from "./status";
 import { tailwindTextColorFromUsername } from "@/utils/colors";
 
@@ -93,7 +94,6 @@ export default function Game() {
                     return;
                 }
             }
-
         }
     }, [info]);
 
@@ -152,20 +152,21 @@ export default function Game() {
 
     return (
         <div className="flex flex-col w-full">
-            <Keyboard
-                availableLetters={availableLetters}
-                mandatoryLetter={mandatoryLetter}
-                horizontal={textFocus}
-                addLetter={addLetter}
-            />
+            <div className="p-3">
+                <Keyboard
+                    availableLetters={availableLetters}
+                    mandatoryLetter={mandatoryLetter}
+                    horizontal={textFocus}
+                    addLetter={addLetter}
+                />
+            </div>
             <form
                 onSubmit={(e) => {
                     e.preventDefault();
                     handleGuess();
                 }}
             >
-                <div className="flex flex-row gap-2">
-                    {wordsFound}/{wordsTotal}
+                <div className="flex flex-row gap-2 px-1 w-full">
                     <TextInput
                         autoFocus
                         value={guess}
@@ -173,8 +174,10 @@ export default function Game() {
                         onFocus={() => setTextFocus(true)}
                         onBlur={() => setTextFocus(false)}
                     />
-                    <Button type='submit'>Guess</Button>
+                    <Button type='submit'>?</Button>
                 </div>
+                {                /* {wordsFound}/{wordsTotal} */}
+                <Score info={info} />
             </form>
             <StatusContainer />
             <WordList words={info.words} />

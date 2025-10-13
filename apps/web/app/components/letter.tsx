@@ -10,7 +10,7 @@ const Letter = ({letter, addLetter, className}: LetterProps) => {
     const bgColor = tailwindBgColorFromUsername(localStorage.getItem('user') || "anon");
     return (
         <button
-            className={`flex items-center uppercase font-bold justify-center text-3xl rounded-full ${bgColor} aspect-square ${className || ""}`}
+            className={`flex items-center uppercase font-bold text-white justify-center text-3xl rounded-full ${bgColor} aspect-square ${className || ""}`}
             onClick={() => addLetter(letter)}
         >
             {letter}
